@@ -1,0 +1,5 @@
+{
+  "name": "spec-quality-check",
+  "description": "自动检查 SPEC.md 是否包含验收标准章节",
+  "builtin": true
+}

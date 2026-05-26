@@ -1,0 +1,6 @@
+{
+  "spec-quality-check": {
+    "enabled": true,
+    "projects": []
+  }
+}

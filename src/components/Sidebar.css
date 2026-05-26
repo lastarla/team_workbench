@@ -1,0 +1,21 @@
+.sidebar-nav { padding: 12px; border-bottom: 1px solid var(--border-color); }
+.nav-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 8px 12px; border: none; background: none; cursor: pointer; border-radius: 6px; font-size: 14px; color: var(--text-primary); }
+.nav-item:hover { background: #f3f4f6; }
+.sidebar-section { padding: 12px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 8px; }
+
+.project-item { padding: 6px 12px; cursor: pointer; border-radius: 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0; }
+.project-item:hover { background: #f3f4f6; }
+.project-item .item-label { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; overflow: hidden; }
+.project-item .item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.project-actions { display: none; gap: 6px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+.project-item:hover .project-actions { display: flex; }
+.project-actions span:hover, .project-actions .anticon:hover { color: var(--accent); }
+
+.req-item { padding: 6px 12px 6px 28px; cursor: pointer; border-radius: 6px; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; min-width: 0; }
+.req-item:hover { background: #f3f4f6; }
+.req-item.active { background: #eff6ff; color: var(--accent); }
+.req-item .item-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.req-item .delete-icon { display: none; font-size: 12px; flex-shrink: 0; }
+.req-item:hover .delete-icon { display: inline; color: var(--text-secondary); }
+.req-item:hover .delete-icon:hover { color: #ef4444; }

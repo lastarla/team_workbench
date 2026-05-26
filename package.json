@@ -1,0 +1,59 @@
+{
+  "name": "team-workbench",
+  "version": "0.1.0",
+  "description": "AI Native 团队可视化开发工作台 — Claude Hooks Gate 机制 + 插件系统",
+  "bin": {
+    "team-workbench": "./bin/cli.ts"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "tsx watch server/index.ts",
+    "dev:client": "vite",
+    "start": "tsx bin/cli.ts",
+    "build": "tsc -p tsconfig.server.json && vite build",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist/",
+    "server/",
+    "bin/",
+    "plugins/"
+  ],
+  "keywords": [
+    "claude",
+    "workbench",
+    "hooks",
+    "gate",
+    "plugin"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@ant-design/icons": "^5.6.1",
+    "antd": "^5.22.7",
+    "chokidar": "4.0.3",
+    "concurrently": "9.1.2",
+    "cors": "2.8.5",
+    "express": "4.21.2",
+    "node-pty": "^1.0.0",
+    "react-markdown": "^10.1.0",
+    "react-syntax-highlighter": "^16.1.1",
+    "remark-gfm": "^4.0.1",
+    "tsx": "4.19.2",
+    "ws": "8.18.0"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "5.0.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/ws": "8.5.14",
+    "@vitejs/plugin-react": "4.3.4",
+    "@xterm/addon-fit": "0.10.0",
+    "@xterm/xterm": "5.5.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "typescript": "5.7.3",
+    "vite": "6.0.0"
+  }
+}

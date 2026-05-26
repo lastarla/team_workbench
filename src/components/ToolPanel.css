@@ -1,0 +1,25 @@
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tool-card { text-align: center; }
+.tool-card-inner { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; }
+
+.panel-tabs { padding: 0; display: flex; flex-direction: column; }
+
+/* 标签字号 12px,文字颜色与主体一致(去蓝色) */
+.browser-tabs { padding: 8px 8px 0; }
+.browser-tabs .ant-tabs-nav { margin-bottom: 8px; }
+.browser-tabs .ant-tabs-tab { font-size: 12px !important; }
+.browser-tabs .ant-tabs-tab .ant-tabs-tab-btn { color: var(--text-secondary); font-size: 12px; }
+.browser-tabs .ant-tabs-tab-active .ant-tabs-tab-btn { color: var(--text-primary) !important; }
+.browser-tabs .ant-tabs-tab-remove { color: var(--text-secondary); font-size: 11px; }
+.browser-tabs .ant-tabs-nav-add { color: var(--text-secondary) !important; }
+.browser-tabs .ant-tabs-ink-bar { background: var(--text-secondary) !important; }
+
+.tab-content { flex: 1; min-height: 0; padding: 0 12px 12px; display: flex; flex-direction: column; }
+
+/* 输入区域:淡雅灰色,符合页面整体风格 */
+.browser-input-area { display: flex; gap: 8px; padding: 12px; background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; }
+.browser-input-area .ant-input { font-size: 13px; }
+.browser-open-btn.ant-btn { background: #f3f4f6; border-color: var(--border-color); color: var(--text-primary); box-shadow: none; }
+.browser-open-btn.ant-btn:hover { background: #e5e7eb !important; border-color: var(--text-secondary) !important; color: var(--text-primary) !important; }
+
+.iframe-content { flex: 1; border: 1px solid var(--border-color); border-radius: 8px; width: 100%; background: #fff; }

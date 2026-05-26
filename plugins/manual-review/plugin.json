@@ -1,0 +1,5 @@
+{
+  "name": "manual-review",
+  "description": "人工审核插件 — Gate 触发时通知前端，等待用户在 UI 上点击通过或拒绝",
+  "builtin": true
+}

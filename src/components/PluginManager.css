@@ -1,0 +1,43 @@
+.plugin-page {
+  padding: 32px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.plugin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.plugin-card-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.plugin-card-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.plugin-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.plugin-card-disabled {
+  opacity: 0.5;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
