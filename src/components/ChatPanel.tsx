@@ -49,13 +49,18 @@ export default function ChatPanel({ activeReq, preselectedProject, preselectedSt
     const sessionId = `${sessionProject}/${sessionStory}`
     wsClient.connect(sessionId)
 
+    let cancelled = false
     let xterm: any
     let fitAddon: any
     let resizeObserver: ResizeObserver | null = null
+    const pending: string[] = [] // xterm 就绪前到达的输出缓存
 
     const initTerminal = async () => {
       const { Terminal } = await import('@xterm/xterm')
       const { FitAddon } = await import('@xterm/addon-fit')
+      // StrictMode 下首次 mount 会立刻被 unmount —— 此时若不取消，会创建第二个 xterm，
+      // 导致两个 onData 监听都向同一个 ws 发输入（即"输入重复 / 连键"）
+      if (cancelled) return
 
       xterm = new Terminal({
         fontSize: 13,
@@ -87,17 +92,24 @@ export default function ChatPanel({ activeReq, preselectedProject, preselectedSt
       }
 
       xtermRef.current = xterm
+
+      // flush 在 xterm 就绪前到达的输出（解决"首次进入看不到 prompt"）
+      if (pending.length) {
+        for (const d of pending) xterm.write(d)
+        pending.length = 0
+      }
     }
 
     initTerminal()
 
     const unsub = wsClient.onMessage((msg) => {
-      if (msg.type === 'output' && xterm) {
-        xterm.write(msg.data)
-      }
+      if (msg.type !== 'output') return
+      if (xterm) xterm.write(msg.data)
+      else pending.push(msg.data)
     })
 
     return () => {
+      cancelled = true
       unsub()
       resizeObserver?.disconnect()
       xterm?.dispose()

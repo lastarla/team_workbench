@@ -51,6 +51,18 @@ export default function App() {
     else setPage(target)
   }
 
+  // 删除需求：若是当前正在使用的需求，则退出会话、回到该项目的"新对话"页且默认选中该项目
+  const handleStoryDeleted = (project: Project, storyName: string) => {
+    const isActive =
+      (activeReq?.project === project.name && activeReq?.name === storyName) ||
+      (preselectedProject?.name === project.name && preselectedStory?.name === storyName)
+    if (!isActive) return
+    setActiveReq(null)
+    setPreselectedStory(null)
+    setPreselectedProject(project)
+    setPage('chat')
+  }
+
   return (
     <div className="layout">
       <Sidebar
@@ -59,6 +71,7 @@ export default function App() {
         onNavigate={handleNavigate}
         onEditProject={handleEditProject}
         onSelectStory={handleSelectStory}
+        onStoryDeleted={handleStoryDeleted}
         dataVersion={dataVersion}
         bumpData={bumpData}
       />

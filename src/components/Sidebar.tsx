@@ -11,11 +11,12 @@ interface Props {
   onNavigate?: (page: string) => void
   onEditProject?: (project: Project) => void
   onSelectStory?: (project: Project, story: Story) => void
+  onStoryDeleted?: (project: Project, storyName: string) => void
   dataVersion?: number
   bumpData?: () => void
 }
 
-export default function Sidebar({ activeReq, onSelectReq, onNavigate, onEditProject, onSelectStory, dataVersion, bumpData }: Props) {
+export default function Sidebar({ activeReq, onSelectReq, onNavigate, onEditProject, onSelectStory, onStoryDeleted, dataVersion, bumpData }: Props) {
   const { modal } = App.useApp()
   const [projects, setProjects] = useState<Project[]>([])
   const [expanded, setExpanded] = useState<Record<string, Story[]>>({})
@@ -73,7 +74,7 @@ export default function Sidebar({ activeReq, onSelectReq, onNavigate, onEditProj
     })
   }
 
-  const deleteStory = (e: React.MouseEvent, projectName: string, storyName: string) => {
+  const deleteStory = (e: React.MouseEvent, project: Project, storyName: string) => {
     e.stopPropagation()
     modal.confirm({
       title: '删除需求',
@@ -82,7 +83,8 @@ export default function Sidebar({ activeReq, onSelectReq, onNavigate, onEditProj
       okButtonProps: { danger: true },
       cancelText: '取消',
       onOk: async () => {
-        await fetch(`/api/projects/${projectName}/requirements/${storyName}`, { method: 'DELETE' })
+        await fetch(`/api/projects/${project.name}/requirements/${storyName}`, { method: 'DELETE' })
+        onStoryDeleted?.(project, storyName)
         bumpData?.()
       }
     })
@@ -119,7 +121,7 @@ export default function Sidebar({ activeReq, onSelectReq, onNavigate, onEditProj
               >
                 <FileTextOutlined />
                 <span className="item-name" title={s.name}>{s.name}</span>
-                <DeleteOutlined className="delete-icon" onClick={e => deleteStory(e, p.name, s.name)} />
+                <DeleteOutlined className="delete-icon" onClick={e => deleteStory(e, p, s.name)} />
               </div>
             ))}
           </div>

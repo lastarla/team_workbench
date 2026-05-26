@@ -7,12 +7,17 @@ export class WsClient {
   connect(sessionId: string) {
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const url = `${protocol}//${location.host}/ws?session=${sessionId}`
-    this.ws = new WebSocket(url)
-    this.ws.onmessage = (e) => {
+    const ws = new WebSocket(url)
+    this.ws = ws
+    ws.onmessage = (e) => {
       const msg = JSON.parse(e.data)
       this.handlers.forEach(h => h(msg))
     }
-    this.ws.onclose = () => { this.ws = null }
+    // 只在 this.ws 仍指向这个 ws 时才置 null —— 否则在 StrictMode 双重 mount 下，
+    // 旧 ws 关闭时会把已经被 reassign 的新 ws 引用一起擦掉，导致输入无法发送。
+    ws.onclose = () => {
+      if (this.ws === ws) this.ws = null
+    }
   }
 
   send(data: any) {
