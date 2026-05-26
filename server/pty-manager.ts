@@ -5,15 +5,18 @@ import path from 'path'
 
 interface PtySession {
   proc: pty.IPty
-  // 断线/初始化期间累积 PTY 输出（ring buffer，限制大小避免无限增长）。
-  // 每次 ws connect 时把当前 buffer 一次性 replay 给新 ws 后清空，
-  // 这样既能保证首次连接看到 startup prompt（即便 ws 重连有时序竞争），
-  // 又不会出现"切走再切回时重复显示之前内容"的问题。
-  buffer: string
+  // Ring buffer（用 chunk 数组 + 总长度计数实现，避免每次输出都 O(N) 复制整段字符串）。
+  // 累积 PTY 全部输出（含 ANSI 控制序列），总字节数上限 MAX_BUFFER。
+  // ws 连接时整段 replay，xterm 拿到完整字节流后会自行重建终端画面，
+  // 包括滚动历史 —— 这就是"切回需求看到之前 claude 聊天记录"的实现机制。
+  chunks: string[]
+  totalLen: number
 }
 
 const sessions = new Map<string, PtySession>()
-const MAX_BUFFER = 8192 // 大致一屏 ~80*100 字符
+// 1 MB：约 200+ 轮 Claude Code 对话足够装下；同时给重连 replay 设置上限，
+// 避免长时间 dev 进程（npm run dev、tail -f 等）让单会话占内存无限增长。
+const MAX_BUFFER = 1024 * 1024
 const VAULT_ROOT = process.env.VAULT_ROOT || path.join(process.cwd(), 'vault')
 
 async function getProjectCwd(sessionId: string): Promise<string> {
@@ -49,14 +52,20 @@ export function setupPtyWebSocket(wss: WebSocketServer) {
         env: process.env as { [key: string]: string }
       })
 
-      session = { proc, buffer: '' }
+      session = { proc, chunks: [], totalLen: 0 }
       sessions.set(sessionId, session)
 
-      // 永久 onData：把所有 PTY 输出累积到 ring buffer（不论是否有 ws 连接）。
-      // 这是修复 StrictMode 下 ws 重连导致初始 prompt 丢失的关键 —— 即便所有 ws
-      // 都在 shell 启动时关掉了，启动输出也被 buffer 捕获，下个 ws 连上时回放。
+      // 永久 onData：所有 PTY 输出推入 chunks 数组、累加总长度，超过 MAX_BUFFER
+      // 时从队首丢弃最早的 chunk。push/shift 都是 O(1)，避免每次拷贝整段字符串。
+      // 同时这是修复 StrictMode 下 ws 重连导致初始 prompt 丢失的关键 —— 即便
+      // 所有 ws 都在 shell 启动时关掉了，启动输出也被 buffer 捕获。
       proc.onData((data) => {
-        session!.buffer = (session!.buffer + data).slice(-MAX_BUFFER)
+        session!.chunks.push(data)
+        session!.totalLen += data.length
+        while (session!.totalLen > MAX_BUFFER && session!.chunks.length > 1) {
+          const oldest = session!.chunks.shift()!
+          session!.totalLen -= oldest.length
+        }
       })
 
       proc.onExit(() => {
@@ -68,10 +77,9 @@ export function setupPtyWebSocket(wss: WebSocketServer) {
     // 原因：StrictMode 双重 mount 下，第一次 mount 的 ws 在 server 端 OPEN 时
     // replay 成功（server 视角），但 client 端已 close() —— 它收不到这条消息。
     // 如果此时清空 buffer，第二次 mount 的 ws 就 replay 不到任何内容（白屏）。
-    // 不清空的副作用：用户切走再切回会看到"最近一屏"的内容（≤MAX_BUFFER），
-    // 这其实就是 PTY 当前的屏幕状态，符合 tmux attach 的直觉，且大小有界。
-    if (session.buffer) {
-      ws.send(JSON.stringify({ type: 'output', data: session.buffer }))
+    // 不清空也让用户切回需求时能看到之前的 claude 聊天历史（≤ MAX_BUFFER）。
+    if (session.totalLen > 0) {
+      ws.send(JSON.stringify({ type: 'output', data: session.chunks.join('') }))
     }
 
     // 实时转发 pty → 当前这个 ws（每个 ws 连接一份订阅，断开时 dispose）。
